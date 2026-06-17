@@ -1,0 +1,46 @@
+Translate the following text from the video game Baldur's Gate 3 into Ukrainian.
+
+Context type: {type}
+
+Rules:
+- Output ONLY the translation. No explanations, no notes, no quotation marks around the result.
+- Preserve all formatting markers exactly as they appear:
+    * Tags: <i>...</i>, <b>...</b>, <br>, <LSTag Tooltip="...">...</LSTag>
+    * Placeholders: [1], [2], [3]
+    * Italic narrative markers: *text* (asterisks stay if present in original)
+    * Telepathic speech markers: ((*text*)) (double parentheses stay if present)
+- Proper names (characters, locations, items) MUST be transliterated into Ukrainian
+  Cyrillic script using established fantasy norms:
+    * Halsin → Гальсін (not "Halsin")
+    * Shadowheart → Тінесерда (matching Ukrainian translation)
+    * Lae'zel → Лей'зель
+    * Astarion → Астаріон
+    * Nightsong → Нічна Пісня
+    * Selûne → Селюна
+  Do NOT translate them semantically (don't translate "Shadowheart" as "Темне Серце").
+  Transliteration only. Exception: keep in Latin script ONLY if the name appears in
+  <i>...</i> as an untranslatable technical term in another in-game language (like
+  <i>zaith'isk</i> — a githyanki ritual). In that case, transliterate inside the italic
+  tags (<i>zaith'isk</i> → <i>зайт'іск</i>) preserving the apostrophe.
+- For dialogue (type=dialogue): use informal "ти" address
+- For UI elements (type=ui_short, type=ui_keybind): use nominative case noun phrases,
+  neutral imperative for actions (e.g. "Відкрити", "Скасувати", not "Ти відкриваєш")
+- For narrative (type=narrative): second person plural "ви" — this is the narrator
+  addressing the player
+- For telepathic (type=telepathic): preserve broken lowercase grammar and
+  sentence fragments — do NOT normalise to standard Ukrainian grammar.
+  Use intimate "ти" address (not "ви") — telepathic creatures address the
+  listener directly and informally.
+- For mechanic descriptions (type=mechanic_description): formal neutral register,
+  third person
+- For books/documents (type=book_or_document): match the register of the source
+  (formal letter → formal, colloquial diary → colloquial)
+- Bracketed descriptive prefixes [Like this one] at the start of book or document
+  content MUST be preserved 1:1 including the square brackets. They mark physical
+  descriptions of items (manuscripts, journals, blueprints, scrolls) and are not
+  optional formatting.
+- Maintain the tone of dark fantasy: archaic or elevated vocabulary where appropriate,
+  but do not over-archaize colloquial lines
+
+Text to translate:
+{en_text}

@@ -1,0 +1,52 @@
+MIT License
+
+Copyright (c) 2026 [Author] — Kyiv National Taras Shevchenko University
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+────────────────────────────────────────────────────────────────────────────────
+
+IMPORTANT NOTICE REGARDING CORPUS DATA
+────────────────────────────────────────────────────────────────────────────────
+
+This MIT license applies ONLY to the pipeline source code (src/*.py) and
+associated tooling in this repository.
+
+The corpus data — including but not limited to:
+  - Original XML localization files (english.loca.xml, ukrainian.loca.xml)
+  - Any derived JSONL files containing game text
+  - The full parallel corpus (corpus.jsonl)
+  - Translation outputs derived from game text (gemini_results.jsonl)
+
+— is NOT part of this repository and is NOT covered by this license.
+
+Baldur's Gate 3 localization text is the intellectual property of
+Larian Studios. All rights reserved by Larian Studios.
+
+The corpus was constructed and used solely for academic research purposes
+(fair use / fair dealing) as part of a bachelor's thesis at Kyiv National
+Taras Shevchenko University, 2026. It is NOT redistributed and is NOT
+available for download.
+
+The small example files in examples/ contain 10–20 records per type,
+included for illustrative purposes only and do not constitute a
+redistributable dataset.
+
+If you wish to reproduce this research, you must obtain the localization
+files from a legally acquired copy of Baldur's Gate 3.

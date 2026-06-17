@@ -1,0 +1,24 @@
+# bg3-corpus — залежності
+# Python >= 3.11
+
+# XML parsing
+lxml>=5.0.0
+
+# Gemini API (новий SDK, google-generativeai deprecated з 2026)
+google-genai>=2.0.0
+
+# Environment variables
+python-dotenv>=1.0.0
+
+# Retry logic
+tenacity>=8.2.0
+
+# MT evaluation metrics
+sacrebleu>=2.4.0
+bert-score>=0.3.13
+
+# BERTScore backend
+torch>=2.0.0
+
+# METEOR metric
+nltk>=3.8.0
