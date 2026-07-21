@@ -11,7 +11,7 @@
 
 | Ресурс | Посилання |
 |--------|-----------|
-| **Код пайплайну (цей репозиторій)** | https://github.com/ZavarOvek/crispy_invention |
+| **Код пайплайну (цей репозиторій)** | https://github.com/ZavarOvek/bg3-corpus |
 | **Корпус і результати (Google Drive)** | https://drive.google.com/drive/folders/1PHGYLNj4pqAisXkIUog3smQXU3fxoZIZ?usp=sharing |
 
 > Корпус розміщено на Google Drive через великий розмір файлів (~120 MB).
@@ -163,7 +163,7 @@ bg3-corpus/
   school = {Київський національний університет імені Тараса Шевченка},
   year   = {2026},
   type   = {Бакалаврська робота},
-  url    = {https://github.com/ZavarOvek/crispy_invention}
+  url    = {https://github.com/ZavarOvek/bg3-corpus}
 }
 ```
 

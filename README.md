@@ -16,7 +16,7 @@ University of Kyiv, 2026.
 
 | Resource | Link |
 | --- | --- |
-| **Pipeline code (this repository)** | <https://github.com/ZavarOvek/crispy_invention> |
+| **Pipeline code (this repository)** | <https://github.com/ZavarOvek/bg3-corpus> |
 | **Corpus and results (Google Drive)** | <https://drive.google.com/drive/folders/1PHGYLNj4pqAisXkIUog3smQXU3fxoZIZ?usp=sharing> |
 
 > The corpus is hosted on Google Drive due to file size (~120 MB).
@@ -172,7 +172,7 @@ are on [Google Drive](https://drive.google.com/drive/folders/1PHGYLNj4pqAisXkIUo
   school = {Taras Shevchenko National University of Kyiv},
   year   = {2026},
   type   = {Bachelor's thesis},
-  url    = {https://github.com/ZavarOvek/crispy_invention}
+  url    = {https://github.com/ZavarOvek/bg3-corpus}
 }
 ```
 
