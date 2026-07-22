@@ -48,6 +48,8 @@ University of Kyiv, 2026.
 | `telepathic` | 98 | 39.72 | 73.76 | 67.11 | 49.45 | 93.46 |
 | `ui_keybind` | 92 | 49.81 | 66.36 | 48.96 | 64.53 | 94.11 |
 
+![Metrics by text type](docs/screenshot.png)
+
 ---
 
 ## Pipeline architecture
