@@ -46,23 +46,28 @@ def align(en_records: list[dict], uk_records: list[dict]) -> tuple[list[dict], l
     for rec in en_records:
         uid = rec["id"]
         if uid in uk_by_id:
-            aligned.append({
-                "id": uid,
-                "version": rec["version"],
-                "en": rec["text"],
-                "uk_human": uk_by_id[uid],
-            })
+            aligned.append(
+                {
+                    "id": uid,
+                    "version": rec["version"],
+                    "en": rec["text"],
+                    "uk_human": uk_by_id[uid],
+                }
+            )
         else:
-            en_only.append({
-                "id": uid,
-                "version": rec["version"],
-                "text": rec["text"],
-                "reason": "no_uk_translation",
-            })
+            en_only.append(
+                {
+                    "id": uid,
+                    "version": rec["version"],
+                    "text": rec["text"],
+                    "reason": "no_uk_translation",
+                }
+            )
 
     logger.info(
         "Вирівняно: %d пар | EN-only: %d",
-        len(aligned), len(en_only),
+        len(aligned),
+        len(en_only),
     )
     return aligned, en_only
 
@@ -87,6 +92,7 @@ if __name__ == "__main__":
     print(f"EN-only:         {len(en_only):,}")
     print("\n--- 10 прикладів aligned ---\n")
     import random
+
     for rec in random.sample(aligned, 10):
         print(f"id={rec['id']} ver={rec['version']}")
         print(f"  EN: {rec['en'][:120]!r}")

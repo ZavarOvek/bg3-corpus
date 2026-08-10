@@ -149,8 +149,12 @@ def write_report(data: dict, out_path: Path) -> None:
     a("")
 
     a("## Спеціальні маркери\n")
-    a(f"- Записи з плейсхолдерами `[N]`: **{data['placeholder_count']:,}** ({data['placeholder_count']/total*100:.1f}%)")
-    a(f"- Записи у `*зірочках*` (наративний монолог): **{data['italic_marker_count']:,}** ({data['italic_marker_count']/total*100:.1f}%)")
+    a(
+        f"- Записи з плейсхолдерами `[N]`: **{data['placeholder_count']:,}** ({data['placeholder_count'] / total * 100:.1f}%)"
+    )
+    a(
+        f"- Записи у `*зірочках*` (наративний монолог): **{data['italic_marker_count']:,}** ({data['italic_marker_count'] / total * 100:.1f}%)"
+    )
     a("")
 
     if data["italic_marker_examples"]:
@@ -163,7 +167,7 @@ def write_report(data: dict, out_path: Path) -> None:
     a("| Тег | Входжень | % записів |")
     a("|-----|----------|-----------|")
     for tag, count in data["tag_counts"].most_common():
-        a(f"| `<{tag}>` | {count:,} | {count/total*100:.2f}% |")
+        a(f"| `<{tag}>` | {count:,} | {count / total * 100:.2f}% |")
     a("")
 
     a("## Деталі по тегах\n")
@@ -203,8 +207,12 @@ if __name__ == "__main__":
     print("\n=== SUMMARY ===")
     print(f"Записів: {data['total']:,}")
     print(f"Довжини: min={ls['min']} | median={ls['median']} | p95={ls['p95']} | max={ls['max']}")
-    print(f"Плейсхолдери [N]: {data['placeholder_count']:,} ({data['placeholder_count']/data['total']*100:.1f}%)")
-    print(f"*Зірочки*: {data['italic_marker_count']:,} ({data['italic_marker_count']/data['total']*100:.1f}%)")
+    print(
+        f"Плейсхолдери [N]: {data['placeholder_count']:,} ({data['placeholder_count'] / data['total'] * 100:.1f}%)"
+    )
+    print(
+        f"*Зірочки*: {data['italic_marker_count']:,} ({data['italic_marker_count'] / data['total'] * 100:.1f}%)"
+    )
     print("\nТеги:")
     for tag, count in data["tag_counts"].most_common():
         print(f"  <{tag}>: {count:,}")

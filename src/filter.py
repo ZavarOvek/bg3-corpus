@@ -25,8 +25,8 @@ TAIL_BR_RE = re.compile(r"(\s*<br\s*/?>)+\s*$", re.IGNORECASE)
 
 # Для підрахунку тегів у тілі (після стрипу хвоста)
 LSTAG_COUNT_RE = re.compile(r"<LSTag[^>]*/?>|</LSTag>", re.IGNORECASE)
-ITAG_COUNT_RE  = re.compile(r"</?i>", re.IGNORECASE)
-BTAG_COUNT_RE  = re.compile(r"</?b>", re.IGNORECASE)
+ITAG_COUNT_RE = re.compile(r"</?i>", re.IGNORECASE)
+BTAG_COUNT_RE = re.compile(r"</?b>", re.IGNORECASE)
 BRTAG_COUNT_RE = re.compile(r"<br\s*/?>", re.IGNORECASE)
 
 # Плейсхолдери: [1], [2], [UUID-подібне]
@@ -52,9 +52,9 @@ def length_class(n: int) -> str:
 def tag_counts(text: str) -> dict[str, int]:
     return {
         "LSTag": len(LSTAG_COUNT_RE.findall(text)),
-        "i":     len(ITAG_COUNT_RE.findall(text)),
-        "b":     len(BTAG_COUNT_RE.findall(text)),
-        "br":    len(BRTAG_COUNT_RE.findall(text)),
+        "i": len(ITAG_COUNT_RE.findall(text)),
+        "b": len(BTAG_COUNT_RE.findall(text)),
+        "br": len(BRTAG_COUNT_RE.findall(text)),
     }
 
 
@@ -73,19 +73,19 @@ def build_metadata(rec: dict, en_clean: str, uk_clean: str) -> dict:
 
     existing = rec.get("metadata", {})
     return {
-        "type":                existing.get("type", "other"),
-        "length_class":        length_class(char_en),
-        "char_count_en":       char_en,
-        "char_count_uk":       char_uk,
-        "has_lstag":           en_tags["LSTag"] > 0,
-        "has_italic":          en_tags["i"] > 0,
-        "has_bold":            en_tags["b"] > 0,
-        "has_br":              en_tags["br"] > 0,
-        "has_placeholder":     bool(PLACEHOLDER_RE.search(en_clean)),
-        "tag_asymmetry":       bool(asymmetry_details),
+        "type": existing.get("type", "other"),
+        "length_class": length_class(char_en),
+        "char_count_en": char_en,
+        "char_count_uk": char_uk,
+        "has_lstag": en_tags["LSTag"] > 0,
+        "has_italic": en_tags["i"] > 0,
+        "has_bold": en_tags["b"] > 0,
+        "has_br": en_tags["br"] > 0,
+        "has_placeholder": bool(PLACEHOLDER_RE.search(en_clean)),
+        "tag_asymmetry": bool(asymmetry_details),
         "tag_asymmetry_details": asymmetry_details if asymmetry_details else None,
-        "uk_human_quality":    existing.get("uk_human_quality", "clean"),
-        "duplicate_count":     1,  # буде оновлено при дедуплікації
+        "uk_human_quality": existing.get("uk_human_quality", "clean"),
+        "duplicate_count": 1,  # буде оновлено при дедуплікації
     }
 
 
@@ -110,23 +110,25 @@ def run(in_path: Path, out_path: Path) -> list[dict]:
     empty_count = 0
 
     for rec in records:
-        en_clean  = strip_tail(rec["en"])
-        uk_clean  = strip_tail(rec["uk_human"])
+        en_clean = strip_tail(rec["en"])
+        uk_clean = strip_tail(rec["uk_human"])
 
         if not en_clean or not uk_clean:
             empty_count += 1
             continue
 
-        stripped.append({
-            "id":       rec["id"],
-            "version":  rec["version"],
-            "en":       en_clean,
-            "uk_human": uk_clean,
-            "metadata": rec.get("metadata", {}),
-        })
+        stripped.append(
+            {
+                "id": rec["id"],
+                "version": rec["version"],
+                "en": en_clean,
+                "uk_human": uk_clean,
+                "metadata": rec.get("metadata", {}),
+            }
+        )
 
     # ── Крок 2: дедуплікація по (en, uk_human) ───────────────────────────────
-    seen: dict[tuple[str, str], int] = {}   # (en, uk) → індекс у deduped
+    seen: dict[tuple[str, str], int] = {}  # (en, uk) → індекс у deduped
     deduped: list[dict] = []
     dup_removed = 0
 
@@ -147,13 +149,15 @@ def run(in_path: Path, out_path: Path) -> list[dict]:
         meta = build_metadata(rec, rec["en"], rec["uk_human"])
         meta["duplicate_count"] = rec["_dup_count"]
 
-        final.append({
-            "id":       rec["id"],
-            "version":  rec["version"],
-            "en":       rec["en"],
-            "uk_human": rec["uk_human"],
-            "metadata": meta,
-        })
+        final.append(
+            {
+                "id": rec["id"],
+                "version": rec["version"],
+                "en": rec["en"],
+                "uk_human": rec["uk_human"],
+                "metadata": meta,
+            }
+        )
 
     save_jsonl(final, out_path)
     return final, total_in, empty_count, dup_removed
@@ -161,6 +165,7 @@ def run(in_path: Path, out_path: Path) -> list[dict]:
 
 if __name__ == "__main__":
     import random
+
     random.seed(42)
 
     records, total_in, empty_count, dup_removed = run(
@@ -178,11 +183,11 @@ if __name__ == "__main__":
     print(f"Записів на виході:         {total_out:>8,}")
 
     # tag_asymmetry
-    asym_true  = sum(1 for r in records if r["metadata"]["tag_asymmetry"])
+    asym_true = sum(1 for r in records if r["metadata"]["tag_asymmetry"])
     asym_false = total_out - asym_true
     print("\n=== TAG ASYMMETRY ===")
-    print(f"tag_asymmetry=true:   {asym_true:>7,}  ({asym_true/total_out*100:.1f}%)")
-    print(f"tag_asymmetry=false:  {asym_false:>7,}  ({asym_false/total_out*100:.1f}%)")
+    print(f"tag_asymmetry=true:   {asym_true:>7,}  ({asym_true / total_out * 100:.1f}%)")
+    print(f"tag_asymmetry=false:  {asym_false:>7,}  ({asym_false / total_out * 100:.1f}%)")
 
     # по класах
     asym_by_class: dict[str, list[int]] = defaultdict(lambda: [0, 0])
@@ -193,14 +198,14 @@ if __name__ == "__main__":
             asym_by_class[cls][0] += 1
     print("\nПо класах (asym / всього):")
     for cls, (a, t) in sorted(asym_by_class.items(), key=lambda x: -x[1][1]):
-        print(f"  {cls:<25} {a:>5,} / {t:>7,}  ({a/t*100:.1f}%)")
+        print(f"  {cls:<25} {a:>5,} / {t:>7,}  ({a / t * 100:.1f}%)")
 
     # length_class
     lc_counts: Counter = Counter(r["metadata"]["length_class"] for r in records)
     print("\n=== LENGTH CLASS ===")
     for lc in ("short", "medium", "long", "extreme"):
         cnt = lc_counts.get(lc, 0)
-        print(f"  {lc:<10} {cnt:>7,}  ({cnt/total_out*100:.1f}%)")
+        print(f"  {lc:<10} {cnt:>7,}  ({cnt / total_out * 100:.1f}%)")
 
     # 5 повних прикладів
     print("\n=== 5 ПРИКЛАДІВ (filtered.jsonl) ===\n")

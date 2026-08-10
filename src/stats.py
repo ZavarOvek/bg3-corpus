@@ -20,7 +20,8 @@ from collections import Counter
 from pathlib import Path
 
 CORPUS_PATH = Path("data/corpus.jsonl")
-STATS_PATH  = Path("data/stats.md")
+STATS_PATH = Path("data/stats.md")
+
 
 # Простий whitespace-токенізатор (достатньо для порівняльної статистики)
 def tokenize(text: str) -> list[str]:
@@ -36,11 +37,11 @@ def percentile(data: list[float], p: float) -> float:
 
 def tok_stats(counts: list[int]) -> dict:
     return {
-        "mean":   round(statistics.mean(counts), 1),
+        "mean": round(statistics.mean(counts), 1),
         "median": statistics.median(counts),
-        "p95":    percentile(counts, 95),
-        "min":    min(counts),
-        "max":    max(counts),
+        "p95": percentile(counts, 95),
+        "min": min(counts),
+        "max": max(counts),
     }
 
 
@@ -59,29 +60,29 @@ def run(corpus_path: Path = CORPUS_PATH, out_path: Path = STATS_PATH) -> None:
 
     # ── Розподіл за класами ──────────────────────────────────────────────────
     type_counts = Counter(r["metadata"]["type"] for r in records)
-    type_order  = [t for t, _ in type_counts.most_common()]
+    type_order = [t for t, _ in type_counts.most_common()]
 
     # ── Розподіл length_class ────────────────────────────────────────────────
     lc_counts = Counter(r["metadata"]["length_class"] for r in records)
 
     # ── Токени ───────────────────────────────────────────────────────────────
-    en_toks  = [len(tokenize(r["en"]))       for r in records]
+    en_toks = [len(tokenize(r["en"])) for r in records]
     ukh_toks = [len(tokenize(r["uk_human"])) for r in records]
     ukg_toks = [len(tokenize(r["uk_gemini"])) for r in sample if r.get("uk_gemini")]
 
-    en_stats  = tok_stats(en_toks)
+    en_stats = tok_stats(en_toks)
     ukh_stats = tok_stats(ukh_toks)
     ukg_stats = tok_stats(ukg_toks)
 
     # ── Теги ─────────────────────────────────────────────────────────────────
-    has_lstag  = sum(1 for r in records if r["metadata"].get("has_lstag"))
+    has_lstag = sum(1 for r in records if r["metadata"].get("has_lstag"))
     has_italic = sum(1 for r in records if r["metadata"].get("has_italic"))
-    has_bold   = sum(1 for r in records if r["metadata"].get("has_bold"))
-    has_br     = sum(1 for r in records if r["metadata"].get("has_br"))
-    has_ph     = sum(1 for r in records if r["metadata"].get("has_placeholder"))
+    has_bold = sum(1 for r in records if r["metadata"].get("has_bold"))
+    has_br = sum(1 for r in records if r["metadata"].get("has_br"))
+    has_ph = sum(1 for r in records if r["metadata"].get("has_placeholder"))
 
     # ── Tag asymmetry ─────────────────────────────────────────────────────────
-    asym_true  = sum(1 for r in records if r["metadata"].get("tag_asymmetry"))
+    asym_true = sum(1 for r in records if r["metadata"].get("tag_asymmetry"))
     asym_false = total - asym_true
 
     # Асиметрія по класах
@@ -125,8 +126,8 @@ def run(corpus_path: Path = CORPUS_PATH, out_path: Path = STATS_PATH) -> None:
     sample_by_type = Counter(r["metadata"]["type"] for r in sample)
     for t in type_order:
         cnt = type_counts[t]
-        sc  = sample_by_type.get(t, 0)
-        a(f"| `{t}` | {cnt:,} | {cnt/total*100:.1f}% | {sc:,} |")
+        sc = sample_by_type.get(t, 0)
+        a(f"| `{t}` | {cnt:,} | {cnt / total * 100:.1f}% | {sc:,} |")
     a(f"| **Разом** | **{total:,}** | 100% | **{n_sample:,}** |")
     a("")
 
@@ -135,45 +136,53 @@ def run(corpus_path: Path = CORPUS_PATH, out_path: Path = STATS_PATH) -> None:
     a("| Клас | Діапазон EN (символів) | Записів | % |")
     a("|------|----------------------|---------|---|")
     lc_defs = [
-        ("short",   "< 100"),
-        ("medium",  "100–499"),
-        ("long",    "500–2000"),
+        ("short", "< 100"),
+        ("medium", "100–499"),
+        ("long", "500–2000"),
         ("extreme", "> 2000"),
     ]
     for lc, rng in lc_defs:
         cnt = lc_counts.get(lc, 0)
-        a(f"| `{lc}` | {rng} | {cnt:,} | {cnt/total*100:.1f}% |")
+        a(f"| `{lc}` | {rng} | {cnt:,} | {cnt / total * 100:.1f}% |")
     a("")
 
     # 4. Токени
     a("## 4. Статистика токенів (whitespace tokenization)\n")
     a("| Колонка | Середнє | Медіана | P95 | Мін | Макс |")
     a("|---------|---------|---------|-----|-----|------|")
-    a(f"| EN | {en_stats['mean']} | {en_stats['median']} | {en_stats['p95']} | {en_stats['min']} | {en_stats['max']} |")
-    a(f"| uk_human | {ukh_stats['mean']} | {ukh_stats['median']} | {ukh_stats['p95']} | {ukh_stats['min']} | {ukh_stats['max']} |")
-    a(f"| uk_gemini *(вибірка, n={n_with_gemini:,})* | {ukg_stats['mean']} | {ukg_stats['median']} | {ukg_stats['p95']} | {ukg_stats['min']} | {ukg_stats['max']} |")
+    a(
+        f"| EN | {en_stats['mean']} | {en_stats['median']} | {en_stats['p95']} | {en_stats['min']} | {en_stats['max']} |"
+    )
+    a(
+        f"| uk_human | {ukh_stats['mean']} | {ukh_stats['median']} | {ukh_stats['p95']} | {ukh_stats['min']} | {ukh_stats['max']} |"
+    )
+    a(
+        f"| uk_gemini *(вибірка, n={n_with_gemini:,})* | {ukg_stats['mean']} | {ukg_stats['median']} | {ukg_stats['p95']} | {ukg_stats['min']} | {ukg_stats['max']} |"
+    )
     a("")
-    a("> Токенізація: розбиття по пробілах (whitespace split). "
-      "Для точних BPE-підрахунків використовуйте `validate.py`.")
+    a(
+        "> Токенізація: розбиття по пробілах (whitespace split). "
+        "Для точних BPE-підрахунків використовуйте `validate.py`."
+    )
     a("")
 
     # 5. Теги
     a("## 5. Наявність тегів і форматування\n")
     a("| Маркер | Записів | % корпусу |")
     a("|--------|---------|-----------|")
-    a(f"| `<LSTag>` (інтерактивна підказка) | {has_lstag:,} | {has_lstag/total*100:.1f}% |")
-    a(f"| `<i>` (курсив / внутрішній голос) | {has_italic:,} | {has_italic/total*100:.1f}% |")
-    a(f"| `<b>` (жирний) | {has_bold:,} | {has_bold/total*100:.1f}% |")
-    a(f"| `<br>` (перенос рядка) | {has_br:,} | {has_br/total*100:.1f}% |")
-    a(f"| `[N]` (плейсхолдер) | {has_ph:,} | {has_ph/total*100:.1f}% |")
+    a(f"| `<LSTag>` (інтерактивна підказка) | {has_lstag:,} | {has_lstag / total * 100:.1f}% |")
+    a(f"| `<i>` (курсив / внутрішній голос) | {has_italic:,} | {has_italic / total * 100:.1f}% |")
+    a(f"| `<b>` (жирний) | {has_bold:,} | {has_bold / total * 100:.1f}% |")
+    a(f"| `<br>` (перенос рядка) | {has_br:,} | {has_br / total * 100:.1f}% |")
+    a(f"| `[N]` (плейсхолдер) | {has_ph:,} | {has_ph / total * 100:.1f}% |")
     a("")
 
     # 6. Tag asymmetry
     a("## 6. Tag asymmetry (різна кількість тегів EN vs UK)\n")
     a("| Статус | Записів | % |")
     a("|--------|---------|---|")
-    a(f"| tag_asymmetry = false | {asym_false:,} | {asym_false/total*100:.1f}% |")
-    a(f"| tag_asymmetry = true  | {asym_true:,} | {asym_true/total*100:.1f}% |")
+    a(f"| tag_asymmetry = false | {asym_false:,} | {asym_false / total * 100:.1f}% |")
+    a(f"| tag_asymmetry = true  | {asym_true:,} | {asym_true / total * 100:.1f}% |")
     a("")
     a("### По класах\n")
     a("| Тип | Асиметрія | Всього | % |")
@@ -198,9 +207,9 @@ def run(corpus_path: Path = CORPUS_PATH, out_path: Path = STATS_PATH) -> None:
     a("| Тип | У вибірці | % вибірки | % від класу |")
     a("|-----|-----------|-----------|------------|")
     for t in type_order:
-        sc   = sample_by_type.get(t, 0)
-        tc   = type_counts[t]
-        a(f"| `{t}` | {sc:,} | {sc/n_sample*100:.1f}% | {sc/tc*100:.1f}% |")
+        sc = sample_by_type.get(t, 0)
+        tc = type_counts[t]
+        a(f"| `{t}` | {sc:,} | {sc / n_sample * 100:.1f}% | {sc / tc * 100:.1f}% |")
     a("")
 
     out_path.parent.mkdir(parents=True, exist_ok=True)

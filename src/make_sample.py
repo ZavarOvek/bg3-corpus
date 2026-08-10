@@ -22,13 +22,13 @@ from pathlib import Path
 INTERMEDIATE = Path("data/intermediate")
 
 STRATA: dict[str, int] = {
-    "dialogue":             2500,
-    "ui_short":              700,
-    "narrative":             800,
-    "mechanic_description":  600,
-    "book_or_document":      200,
-    "telepathic":            100,
-    "ui_keybind":             92,  # усі — в filtered їх рівно 92
+    "dialogue": 2500,
+    "ui_short": 700,
+    "narrative": 800,
+    "mechanic_description": 600,
+    "book_or_document": 200,
+    "telepathic": 100,
+    "ui_keybind": 92,  # усі — в filtered їх рівно 92
 }
 
 

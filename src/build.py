@@ -29,10 +29,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-INTERMEDIATE  = Path("data/intermediate")
+INTERMEDIATE = Path("data/intermediate")
 FILTERED_PATH = INTERMEDIATE / "filtered.jsonl"
-GEMINI_PATH   = INTERMEDIATE / "gemini_results.jsonl"
-CORPUS_PATH   = Path("data/corpus.jsonl")
+GEMINI_PATH = INTERMEDIATE / "gemini_results.jsonl"
+CORPUS_PATH = Path("data/corpus.jsonl")
 
 
 def load_jsonl(path: Path) -> list[dict]:
@@ -54,8 +54,8 @@ def load_gemini_index(path: Path) -> dict[str, str | None]:
 
 def run(
     filtered_path: Path = FILTERED_PATH,
-    gemini_path:   Path = GEMINI_PATH,
-    corpus_path:   Path = CORPUS_PATH,
+    gemini_path: Path = GEMINI_PATH,
+    corpus_path: Path = CORPUS_PATH,
 ) -> None:
     logger.info("Читаємо %s", filtered_path)
     filtered = load_jsonl(filtered_path)
@@ -66,9 +66,9 @@ def run(
 
     corpus_path.parent.mkdir(parents=True, exist_ok=True)
 
-    total        = 0
-    with_gemini  = 0
-    in_sample    = 0
+    total = 0
+    with_gemini = 0
+    in_sample = 0
     not_in_sample = 0
 
     with corpus_path.open("w", encoding="utf-8") as f:
@@ -88,12 +88,12 @@ def run(
                 not_in_sample += 1
 
             out = {
-                "id":        uid,
-                "version":   rec["version"],
-                "en":        rec["en"],
-                "uk_human":  rec["uk_human"],
+                "id": uid,
+                "version": rec["version"],
+                "en": rec["en"],
+                "uk_human": rec["uk_human"],
                 "uk_gemini": uk_gemini,
-                "metadata":  meta,
+                "metadata": meta,
             }
             f.write(json.dumps(out, ensure_ascii=False) + "\n")
             total += 1
@@ -102,8 +102,11 @@ def run(
     logger.info("CORPUS SUMMARY")
     logger.info("  Всього пар:           %d", total)
     logger.info("  У вибірці (in_sample):%d", in_sample)
-    logger.info("    з uk_gemini:        %d  (%.1f%% вибірки)",
-                with_gemini, with_gemini / in_sample * 100 if in_sample else 0)
+    logger.info(
+        "    з uk_gemini:        %d  (%.1f%% вибірки)",
+        with_gemini,
+        with_gemini / in_sample * 100 if in_sample else 0,
+    )
     logger.info("    uk_gemini=null:     %d", in_sample - with_gemini)
     logger.info("  Поза вибіркою:        %d", not_in_sample)
     logger.info("─" * 50)

@@ -43,8 +43,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-CORPUS_PATH  = Path("data/corpus.jsonl")
-RESULTS_MD   = Path("data/validation_results.md")
+CORPUS_PATH = Path("data/corpus.jsonl")
+RESULTS_MD = Path("data/validation_results.md")
 RESULTS_JSONL = Path("data/validation_raw.jsonl")
 
 # Модель для BERTScore — багатомовна, підтримує українську
@@ -62,7 +62,7 @@ def strip_tags(text: str) -> str:
 def compute_sacrebleu_metrics(hyps: list[str], refs: list[str]) -> dict:
     """BLEU, METEOR, TER, CHRF++ для списку гіпотез і референсів."""
     bleu = sacrebleu.corpus_bleu(hyps, [refs], tokenize="13a")
-    ter  = sacrebleu.corpus_ter(hyps, [refs])
+    ter = sacrebleu.corpus_ter(hyps, [refs])
     chrf = sacrebleu.corpus_chrf(hyps, [refs], word_order=2)
 
     # METEOR через NLTK (sacrebleu 2.x не має corpus_meteor)
@@ -74,11 +74,11 @@ def compute_sacrebleu_metrics(hyps: list[str], refs: list[str]) -> dict:
     meteor_avg = sum(meteor_scores) / len(meteor_scores) if meteor_scores else 0.0
 
     return {
-        "BLEU":   round(bleu.score, 2),
+        "BLEU": round(bleu.score, 2),
         "METEOR": round(meteor_avg * 100, 2),
-        "TER":    round(ter.score, 2),
-        "CHRF":   round(chrf.score, 2),
-        "n":      len(hyps),
+        "TER": round(ter.score, 2),
+        "CHRF": round(chrf.score, 2),
+        "n": len(hyps),
     }
 
 
@@ -86,22 +86,23 @@ def compute_bertscore(hyps: list[str], refs: list[str], model: str) -> dict:
     """BERTScore P/R/F1."""
     logger.info("  BERTScore: обчислення для %d пар (модель: %s)...", len(hyps), model)
     P, R, F1 = bert_score_fn(
-        hyps, refs,
+        hyps,
+        refs,
         model_type=model,
         lang="uk",
         verbose=False,
         device=None,
     )
     return {
-        "BERTScore_P":  round(P.mean().item() * 100, 2),
-        "BERTScore_R":  round(R.mean().item() * 100, 2),
+        "BERTScore_P": round(P.mean().item() * 100, 2),
+        "BERTScore_R": round(R.mean().item() * 100, 2),
         "BERTScore_F1": round(F1.mean().item() * 100, 2),
     }
 
 
 def run(
-    corpus_path:   Path = CORPUS_PATH,
-    results_md:    Path = RESULTS_MD,
+    corpus_path: Path = CORPUS_PATH,
+    results_md: Path = RESULTS_MD,
     results_jsonl: Path = RESULTS_JSONL,
 ) -> None:
     # ── Завантаження і фільтрація ─────────────────────────────────────────────
@@ -115,17 +116,14 @@ def run(
 
     # Тільки вибірка з перекладом
     sample = [
-        r for r in all_records
-        if r["metadata"].get("in_sample")
-        and r.get("uk_gemini") is not None
+        r for r in all_records if r["metadata"].get("in_sample") and r.get("uk_gemini") is not None
     ]
 
     # Виключаємо marker_mismatch
     excluded = [r for r in sample if r["metadata"].get("uk_human_quality") == "marker_mismatch"]
-    sample   = [r for r in sample if r["metadata"].get("uk_human_quality") != "marker_mismatch"]
+    sample = [r for r in sample if r["metadata"].get("uk_human_quality") != "marker_mismatch"]
 
-    logger.info("Вибірка: %d записів | Виключено (marker_mismatch): %d",
-                len(sample), len(excluded))
+    logger.info("Вибірка: %d записів | Виключено (marker_mismatch): %d", len(sample), len(excluded))
 
     # ── Стрип тегів ───────────────────────────────────────────────────────────
     for r in sample:
@@ -145,13 +143,14 @@ def run(
     groups.update(by_type)
 
     # tag_asymmetry
-    groups["tag_asymmetry=true"]  = [r for r in sample if r["metadata"].get("tag_asymmetry")]
+    groups["tag_asymmetry=true"] = [r for r in sample if r["metadata"].get("tag_asymmetry")]
     groups["tag_asymmetry=false"] = [r for r in sample if not r["metadata"].get("tag_asymmetry")]
 
     # ── BERTScore для всіх одразу ─────────────────────────────────────────────
     logger.info("BERTScore: завантаження моделі %s...", BERT_MODEL)
     P_all, R_all, F1_all = bert_score_fn(
-        hyps_all, refs_all,
+        hyps_all,
+        refs_all,
         model_type=BERT_MODEL,
         lang="uk",
         verbose=False,
@@ -159,15 +158,24 @@ def run(
     )
     # Зберігаємо per-record BERTScore
     for i, r in enumerate(sample):
-        r["_bs_p"]  = P_all[i].item()
-        r["_bs_r"]  = R_all[i].item()
+        r["_bs_p"] = P_all[i].item()
+        r["_bs_r"] = R_all[i].item()
         r["_bs_f1"] = F1_all[i].item()
 
     # ── Обчислення по групах ──────────────────────────────────────────────────
     results: dict[str, dict] = {}
-    type_order = ["__all__", "dialogue", "ui_short", "narrative",
-                  "mechanic_description", "book_or_document", "telepathic",
-                  "ui_keybind", "tag_asymmetry=true", "tag_asymmetry=false"]
+    type_order = [
+        "__all__",
+        "dialogue",
+        "ui_short",
+        "narrative",
+        "mechanic_description",
+        "book_or_document",
+        "telepathic",
+        "ui_keybind",
+        "tag_asymmetry=true",
+        "tag_asymmetry=false",
+    ]
 
     for group_name in type_order:
         recs = groups.get(group_name, [])
@@ -181,13 +189,13 @@ def run(
 
         # BERTScore — з вже обчислених per-record
         bs_f1 = round(sum(r["_bs_f1"] for r in recs) / len(recs) * 100, 2)
-        bs_p  = round(sum(r["_bs_p"]  for r in recs) / len(recs) * 100, 2)
-        bs_r  = round(sum(r["_bs_r"]  for r in recs) / len(recs) * 100, 2)
+        bs_p = round(sum(r["_bs_p"] for r in recs) / len(recs) * 100, 2)
+        bs_r = round(sum(r["_bs_r"] for r in recs) / len(recs) * 100, 2)
 
         results[group_name] = {
             **sb,
-            "BERTScore_P":  bs_p,
-            "BERTScore_R":  bs_r,
+            "BERTScore_P": bs_p,
+            "BERTScore_R": bs_r,
             "BERTScore_F1": bs_f1,
         }
 
@@ -196,15 +204,15 @@ def run(
     with results_jsonl.open("w", encoding="utf-8") as f:
         for r in sample:
             out = {
-                "id":          r["id"],
-                "type":        r["metadata"]["type"],
+                "id": r["id"],
+                "type": r["metadata"]["type"],
                 "length_class": r["metadata"]["length_class"],
                 "tag_asymmetry": r["metadata"].get("tag_asymmetry"),
-                "en":          r["en"],
-                "uk_human":    r["uk_human"],
-                "uk_gemini":   r["uk_gemini"],
-                "hyp_clean":   r["_hyp"],
-                "ref_clean":   r["_ref"],
+                "en": r["en"],
+                "uk_human": r["uk_human"],
+                "uk_gemini": r["uk_gemini"],
+                "hyp_clean": r["_hyp"],
+                "ref_clean": r["_ref"],
                 "bertscore_f1": round(r["_bs_f1"] * 100, 2),
             }
             f.write(json.dumps(out, ensure_ascii=False) + "\n")
@@ -243,15 +251,24 @@ def run(
 
     # ── По типах ──────────────────────────────────────────────────────────────
     a("## 2. Метрики по типах тексту\n")
-    type_names = ["dialogue", "ui_short", "narrative",
-                  "mechanic_description", "book_or_document", "telepathic", "ui_keybind"]
+    type_names = [
+        "dialogue",
+        "ui_short",
+        "narrative",
+        "mechanic_description",
+        "book_or_document",
+        "telepathic",
+        "ui_keybind",
+    ]
     a("| Тип | n | BLEU | METEOR | TER | ChrF++ | BERTScore F1 |")
     a("|-----|---|------|--------|-----|--------|-------------|")
     for t in type_names:
         if t not in results:
             continue
         r = results[t]
-        a(f"| `{t}` | {r['n']:,} | {r['BLEU']} | {r['METEOR']} | {r['TER']} | {r['CHRF']} | {r['BERTScore_F1']} |")
+        a(
+            f"| `{t}` | {r['n']:,} | {r['BLEU']} | {r['METEOR']} | {r['TER']} | {r['CHRF']} | {r['BERTScore_F1']} |"
+        )
     a("")
 
     # ── Tag asymmetry ──────────────────────────────────────────────────────────
@@ -262,7 +279,9 @@ def run(
         if g not in results:
             continue
         r = results[g]
-        a(f"| `{g}` | {r['n']:,} | {r['BLEU']} | {r['METEOR']} | {r['TER']} | {r['CHRF']} | {r['BERTScore_F1']} |")
+        a(
+            f"| `{g}` | {r['n']:,} | {r['BLEU']} | {r['METEOR']} | {r['TER']} | {r['CHRF']} | {r['BERTScore_F1']} |"
+        )
     a("")
 
     # ── Нотатки ────────────────────────────────────────────────────────────────
@@ -277,10 +296,16 @@ def run(
     a("")
     a("### Обмеження метрик")
     a("")
-    a("- **BLEU** чутливий до порядку слів і довжини; при коротких рядках (82.7% корпусу < 100 символів) дає нестабільні результати.")
+    a(
+        "- **BLEU** чутливий до порядку слів і довжини; при коротких рядках (82.7% корпусу < 100 символів) дає нестабільні результати."
+    )
     a("- **TER** штрафує за перестановки; може бути завищений для вільного перекладу.")
-    a("- **BERTScore** краще відображає семантичну схожість, менш чутливий до поверхневих розбіжностей.")
-    a("- Офіційний переклад (`uk_human`) є референсом — але він сам може містити помилки або використовувати інший регістр/стиль.")
+    a(
+        "- **BERTScore** краще відображає семантичну схожість, менш чутливий до поверхневих розбіжностей."
+    )
+    a(
+        "- Офіційний переклад (`uk_human`) є референсом — але він сам може містити помилки або використовувати інший регістр/стиль."
+    )
     a("- Для `ui_keybind` і `telepathic` — малі вибірки (n<100), метрики менш стабільні.")
     a("")
 

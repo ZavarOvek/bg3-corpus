@@ -28,9 +28,9 @@ from pathlib import Path
 
 INTERMEDIATE = Path("data/intermediate")
 
-PUNCT_END_RE  = re.compile(r"[.?!:)\]\"'»…—\-]$")
-LSTAG_RE      = re.compile(r"<LSTag", re.IGNORECASE)
-KEYBIND_RE    = re.compile(r"^\[(IE_|GLO_|GEN_)")
+PUNCT_END_RE = re.compile(r"[.?!:)\]\"'»…—\-]$")
+LSTAG_RE = re.compile(r"<LSTag", re.IGNORECASE)
+KEYBIND_RE = re.compile(r"^\[(IE_|GLO_|GEN_)")
 # Ідентифікатори: чисте число, ALL_CAPS_WITH_UNDERSCORES, або ALLCAPS без пробілів
 BRACKET_ID_RE = re.compile(r"^\[(\d+|[A-Z][A-Z0-9 _]*)\]")
 
@@ -64,12 +64,15 @@ def _is_book_bracket(stripped: str) -> bool:
         return False
     return True
 
+
 # Відомі дефектні id (з check_telepathic_uk.py + telepathic_extras)
-MARKER_MISMATCH_IDS: frozenset[str] = frozenset({
-    "hc487b8feg808cg4281gb27eg2854f0f90b33",  # partial_open UK маркер
-    "h315e1420g6bf4g4e4cg8381gdcf75545cc38",  # <br> хвіст після *))
-    "h93881c0agc132g439fg8979g36c9ba7ef54d",  # <br> хвіст після *))
-})
+MARKER_MISMATCH_IDS: frozenset[str] = frozenset(
+    {
+        "hc487b8feg808cg4281gb27eg2854f0f90b33",  # partial_open UK маркер
+        "h315e1420g6bf4g4e4cg8381gdcf75545cc38",  # <br> хвіст після *))
+        "h93881c0agc132g439fg8979g36c9ba7ef54d",  # <br> хвіст після *))
+    }
+)
 
 
 def classify(en: str) -> str:
@@ -135,7 +138,7 @@ if __name__ == "__main__":
 
     print(f"\n=== РОЗПОДІЛ КЛАСІВ ({total:,} записів) ===\n")
     for cls, cnt in counts.most_common():
-        print(f"  {cls:<25} {cnt:>7,}  ({cnt/total*100:.1f}%)")
+        print(f"  {cls:<25} {cnt:>7,}  ({cnt / total * 100:.1f}%)")
 
     # 5 прикладів кожного класу
     by_class: dict[str, list[dict]] = {}

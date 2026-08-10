@@ -41,18 +41,18 @@ load_dotenv(_ENV_PATH)
 logger = logging.getLogger(__name__)
 
 INTERMEDIATE = Path("data/intermediate")
-PROMPTS_DIR  = Path("prompts")
+PROMPTS_DIR = Path("prompts")
 
-SAMPLE_PATH  = INTERMEDIATE / "sample.jsonl"
+SAMPLE_PATH = INTERMEDIATE / "sample.jsonl"
 RESULTS_PATH = INTERMEDIATE / "gemini_results.jsonl"
-PROMPT_PATH  = PROMPTS_DIR  / "gemini_v1.txt"
+PROMPT_PATH = PROMPTS_DIR / "gemini_v1.txt"
 
 # ── Параметри моделі ──────────────────────────────────────────────────────────
 
-MODEL_NAME        = "gemini-3.1-flash-lite"
-TEMPERATURE       = 0.2
-TOP_P             = 0.9
-TOP_K             = 40
+MODEL_NAME = "gemini-3.1-flash-lite"
+TEMPERATURE = 0.2
+TOP_P = 0.9
+TOP_K = 40
 MAX_OUTPUT_TOKENS = 2048
 
 # Безкоштовний tier: 15 RPM → 4.5с між запитами з запасом
@@ -61,8 +61,10 @@ SLEEP_BETWEEN = 4.5
 
 # ── Класи помилок для диференційованого retry ─────────────────────────────────
 
+
 class RetryableError(Exception):
     """429 rate limit або 5xx сервера — повторюємо з backoff."""
+
 
 class FatalError(Exception):
     """400 / 403 — зупиняємось, не повторюємо."""
@@ -82,6 +84,7 @@ def _classify_api_error(exc: Exception) -> Exception:
 
 # ── Промпт ────────────────────────────────────────────────────────────────────
 
+
 def load_prompt_template(path: Path = PROMPT_PATH) -> str:
     return path.read_text(encoding="utf-8")
 
@@ -93,18 +96,19 @@ def build_user_message(template: str, en_text: str, rec_type: str) -> str:
 
 # ── Ініціалізація клієнта ─────────────────────────────────────────────────────
 
+
 def init_client() -> genai.Client:
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise RuntimeError(
-            "GEMINI_API_KEY не знайдено. Створіть файл .env з рядком:\n"
-            "GEMINI_API_KEY=your_key_here"
+            "GEMINI_API_KEY не знайдено. Створіть файл .env з рядком:\nGEMINI_API_KEY=your_key_here"
         )
     logger.info("GEMINI_API_KEY знайдено (довжина=%d символів)", len(api_key))
     return genai.Client(api_key=api_key)
 
 
 # ── Один запит з диференційованим retry ──────────────────────────────────────
+
 
 @retry(
     retry=retry_if_exception_type(RetryableError),
@@ -146,7 +150,7 @@ def translate_one(
     Перекладає один запис. Повертає рядок або None при провалі.
     Помилки логуються БЕЗ значення API ключа.
     """
-    rec_type     = rec["metadata"]["type"]
+    rec_type = rec["metadata"]["type"]
     user_message = build_user_message(template, rec["en"], rec_type)
     try:
         return _call_api(client, user_message)
@@ -162,6 +166,7 @@ def translate_one(
 
 
 # ── Resume ────────────────────────────────────────────────────────────────────
+
 
 def load_jsonl(path: Path) -> list[dict]:
     with path.open("r", encoding="utf-8") as f:
@@ -200,6 +205,7 @@ def load_done_ids(results_path: Path) -> set[str]:
 
 # ── Основний цикл ─────────────────────────────────────────────────────────────
 
+
 def run(
     sample_path: Path = SAMPLE_PATH,
     results_path: Path = RESULTS_PATH,
@@ -213,7 +219,7 @@ def run(
         results_path: вихідний JSONL (append при resume)
         limit:        зупинитись після N нових перекладів (тест: 10 / 100 / 1000)
     """
-    records  = load_jsonl(sample_path)
+    records = load_jsonl(sample_path)
     done_ids = load_done_ids(results_path)
 
     pending = [r for r in records if r["id"] not in done_ids]
@@ -222,18 +228,20 @@ def run(
 
     logger.info(
         "Вибірка: %d | вже готово: %d | до перекладу: %d",
-        len(records), len(done_ids), len(pending),
+        len(records),
+        len(done_ids),
+        len(pending),
     )
     if not pending:
         logger.info("Нічого робити — всі записи вже перекладено.")
         return
 
-    client   = init_client()
+    client = init_client()
     template = load_prompt_template()
 
     results_path.parent.mkdir(parents=True, exist_ok=True)
 
-    ok_count   = 0
+    ok_count = 0
     fail_count = 0
 
     with results_path.open("a", encoding="utf-8") as f:
@@ -241,11 +249,11 @@ def run(
             translation = translate_one(client, template, rec)
 
             result = {
-                "id":        rec["id"],
-                "en":        rec["en"],
-                "uk_human":  rec["uk_human"],
+                "id": rec["id"],
+                "en": rec["en"],
+                "uk_human": rec["uk_human"],
                 "uk_gemini": translation,
-                "metadata":  rec["metadata"],
+                "metadata": rec["metadata"],
             }
             f.write(json.dumps(result, ensure_ascii=False) + "\n")
             f.flush()
@@ -262,7 +270,9 @@ def run(
 
     logger.info(
         "Завершено. OK: %d | FAIL: %d | Файл: %s",
-        ok_count, fail_count, results_path,
+        ok_count,
+        fail_count,
+        results_path,
     )
 
 
@@ -273,7 +283,9 @@ if __name__ == "__main__":
 
     _LOG_DIR = Path("logs")
     _LOG_DIR.mkdir(exist_ok=True)
-    _log_fmt = logging.Formatter("%(asctime)s %(levelname)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+    _log_fmt = logging.Formatter(
+        "%(asctime)s %(levelname)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+    )
 
     _console = logging.StreamHandler()
     _console.setFormatter(_log_fmt)
@@ -284,10 +296,14 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, handlers=[_console, _file_h])
 
     parser = argparse.ArgumentParser(description="Gemini переклад BG3 корпусу")
-    parser.add_argument("--limit",  type=int,  default=None,
-                        help="Перекласти тільки N записів (тест: 10 / 100 / 1000)")
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Перекласти тільки N записів (тест: 10 / 100 / 1000)",
+    )
     parser.add_argument("--sample", type=Path, default=SAMPLE_PATH)
-    parser.add_argument("--out",    type=Path, default=RESULTS_PATH)
+    parser.add_argument("--out", type=Path, default=RESULTS_PATH)
     args = parser.parse_args()
 
     run(sample_path=args.sample, results_path=args.out, limit=args.limit)
