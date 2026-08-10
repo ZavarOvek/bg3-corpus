@@ -38,7 +38,7 @@ jobs:
       - name: Import every pipeline module
         run: |
           cd src
-          for m in align build classify extract filter scout_tags stats; do
+          for m in align build classify extract filter make_sample scout_tags stats; do
             echo "importing $m"
             python -c "import $m"
           done

@@ -20,7 +20,6 @@ import random
 from pathlib import Path
 
 INTERMEDIATE = Path("data/intermediate")
-random.seed(42)
 
 STRATA: dict[str, int] = {
     "dialogue":             2500,
@@ -44,41 +43,48 @@ def save_jsonl(records: list[dict], path: Path) -> None:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
 
 
-records = load_jsonl(INTERMEDIATE / "filtered.jsonl")
+def main() -> None:
+    random.seed(42)
 
-# Групуємо по класах
-by_class: dict[str, list[dict]] = {}
-for rec in records:
-    cls = rec["metadata"]["type"]
-    by_class.setdefault(cls, []).append(rec)
+    records = load_jsonl(INTERMEDIATE / "filtered.jsonl")
 
-# Семплінг
-sample_ids: set[str] = set()
-sample_records: list[dict] = []
+    # Групуємо по класах
+    by_class: dict[str, list[dict]] = {}
+    for rec in records:
+        cls = rec["metadata"]["type"]
+        by_class.setdefault(cls, []).append(rec)
 
-for cls, n in STRATA.items():
-    pool = by_class.get(cls, [])
-    chosen = random.sample(pool, min(n, len(pool)))
-    for rec in chosen:
-        sample_ids.add(rec["id"])
-    sample_records.extend(chosen)
-    print(f"  {cls:<25} {len(chosen):>4} / {len(pool):>6}  запитано={n}")
+    # Семплінг
+    sample_ids: set[str] = set()
+    sample_records: list[dict] = []
 
-print(f"\nВсього у вибірці: {len(sample_records)}")
+    for cls, n in STRATA.items():
+        pool = by_class.get(cls, [])
+        chosen = random.sample(pool, min(n, len(pool)))
+        for rec in chosen:
+            sample_ids.add(rec["id"])
+        sample_records.extend(chosen)
+        print(f"  {cls:<25} {len(chosen):>4} / {len(pool):>6}  запитано={n}")
 
-# Зберігаємо sample.jsonl
-save_jsonl(sample_records, INTERMEDIATE / "sample.jsonl")
-print(f"Збережено: {INTERMEDIATE / 'sample.jsonl'}")
+    print(f"\nВсього у вибірці: {len(sample_records)}")
 
-# Оновлюємо filtered.jsonl: додаємо in_sample
-updated = []
-for rec in records:
-    rec["in_sample"] = rec["id"] in sample_ids
-    updated.append(rec)
+    # Зберігаємо sample.jsonl
+    save_jsonl(sample_records, INTERMEDIATE / "sample.jsonl")
+    print(f"Збережено: {INTERMEDIATE / 'sample.jsonl'}")
 
-save_jsonl(updated, INTERMEDIATE / "filtered.jsonl")
-print(f"Оновлено:  {INTERMEDIATE / 'filtered.jsonl'} (in_sample прапор)")
+    # Оновлюємо filtered.jsonl: додаємо in_sample
+    updated = []
+    for rec in records:
+        rec["in_sample"] = rec["id"] in sample_ids
+        updated.append(rec)
 
-# Перевірка
-in_sample_count = sum(1 for r in updated if r["in_sample"])
-print(f"\nПерехресна перевірка: in_sample=True у filtered.jsonl: {in_sample_count}")
+    save_jsonl(updated, INTERMEDIATE / "filtered.jsonl")
+    print(f"Оновлено:  {INTERMEDIATE / 'filtered.jsonl'} (in_sample прапор)")
+
+    # Перевірка
+    in_sample_count = sum(1 for r in updated if r["in_sample"])
+    print(f"\nПерехресна перевірка: in_sample=True у filtered.jsonl: {in_sample_count}")
+
+
+if __name__ == "__main__":
+    main()

@@ -19,6 +19,12 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 - `src/scout_tags.py`: dropped a leftover `full_tag` assignment that was
   never read.
 - `src/stats.py`: removed an unused `re` import.
+- `src/make_sample.py`: the module body now lives in `main()` behind an
+  `if __name__ == "__main__"` guard, like every other stage. Importing it no
+  longer reads `data/intermediate/filtered.jsonl` and no longer reseeds the
+  global RNG as a side effect; `random.seed(42)` moved into `main()`.
+  Outputs were verified byte-for-byte identical to the previous version on a
+  synthetic 4,000-record fixture.
 - `src/validate.py`: `zip()` over hypotheses and references is now explicit
   about `strict=True`. The two lists come from the same sample and have
   always matched in length, so results are unchanged; the invariant is now
