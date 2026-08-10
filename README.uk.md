@@ -1,4 +1,9 @@
 [English](README.md) | **Українська**
+
+[![CI](https://github.com/ZavarOvek/bg3-corpus/actions/workflows/ci.yml/badge.svg)](https://github.com/ZavarOvek/bg3-corpus/actions/workflows/ci.yml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 # bg3-corpus — Паралельний корпус EN-UK на основі текстів Baldur's Gate 3
 
 Пайплайн для побудови паралельного англійсько-українського корпусу з текстів локалізації Baldur's Gate 3, з автоматичним перекладом через Google Gemini API та обчисленням MT-метрик якості.

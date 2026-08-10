@@ -171,7 +171,7 @@ if __name__ == "__main__":
     total_out = len(records)
 
     # ── Зведення ─────────────────────────────────────────────────────────────
-    print(f"\n=== FILTER SUMMARY ===")
+    print("\n=== FILTER SUMMARY ===")
     print(f"Записів на вході:          {total_in:>8,}")
     print(f"Видалено (порожні):        {empty_count:>8,}")
     print(f"Видалено (дублікати):      {dup_removed:>8,}")
@@ -180,7 +180,7 @@ if __name__ == "__main__":
     # tag_asymmetry
     asym_true  = sum(1 for r in records if r["metadata"]["tag_asymmetry"])
     asym_false = total_out - asym_true
-    print(f"\n=== TAG ASYMMETRY ===")
+    print("\n=== TAG ASYMMETRY ===")
     print(f"tag_asymmetry=true:   {asym_true:>7,}  ({asym_true/total_out*100:.1f}%)")
     print(f"tag_asymmetry=false:  {asym_false:>7,}  ({asym_false/total_out*100:.1f}%)")
 
@@ -197,13 +197,13 @@ if __name__ == "__main__":
 
     # length_class
     lc_counts: Counter = Counter(r["metadata"]["length_class"] for r in records)
-    print(f"\n=== LENGTH CLASS ===")
+    print("\n=== LENGTH CLASS ===")
     for lc in ("short", "medium", "long", "extreme"):
         cnt = lc_counts.get(lc, 0)
         print(f"  {lc:<10} {cnt:>7,}  ({cnt/total_out*100:.1f}%)")
 
     # 5 повних прикладів
-    print(f"\n=== 5 ПРИКЛАДІВ (filtered.jsonl) ===\n")
+    print("\n=== 5 ПРИКЛАДІВ (filtered.jsonl) ===\n")
     for r in random.sample(records, 5):
         print(json.dumps(r, ensure_ascii=False, indent=2))
         print()

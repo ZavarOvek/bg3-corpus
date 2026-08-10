@@ -84,7 +84,6 @@ def analyse(records: list[tuple[str, str]]) -> dict:
         # Теги
         for m in TAG_RE.finditer(text):
             tag_name = m.group(1).lstrip("/").lower()
-            full_tag = m.group(0)
             tag_counts[tag_name] += 1
             if len(tag_examples[tag_name]) < 5:
                 # контекст: 30 символів до і після тегу
@@ -138,8 +137,8 @@ def write_report(data: dict, out_path: Path) -> None:
     a(f"**Всього записів:** {total:,}\n")
 
     a("## Розподіл довжин (символів)\n")
-    a(f"| Метрика | Значення |")
-    a(f"|---------|----------|")
+    a("| Метрика | Значення |")
+    a("|---------|----------|")
     a(f"| min     | {ls['min']} |")
     a(f"| p5      | {ls['p5']} |")
     a(f"| median  | {ls['median']} |")
@@ -161,8 +160,8 @@ def write_report(data: dict, out_path: Path) -> None:
         a("")
 
     a("## Унікальні теги (за частотою)\n")
-    a(f"| Тег | Входжень | % записів |")
-    a(f"|-----|----------|-----------|")
+    a("| Тег | Входжень | % записів |")
+    a("|-----|----------|-----------|")
     for tag, count in data["tag_counts"].most_common():
         a(f"| `<{tag}>` | {count:,} | {count/total*100:.2f}% |")
     a("")
@@ -201,11 +200,11 @@ if __name__ == "__main__":
 
     # Короткий summary у stdout
     ls = length_stats(data["lengths"])
-    print(f"\n=== SUMMARY ===")
+    print("\n=== SUMMARY ===")
     print(f"Записів: {data['total']:,}")
     print(f"Довжини: min={ls['min']} | median={ls['median']} | p95={ls['p95']} | max={ls['max']}")
     print(f"Плейсхолдери [N]: {data['placeholder_count']:,} ({data['placeholder_count']/data['total']*100:.1f}%)")
     print(f"*Зірочки*: {data['italic_marker_count']:,} ({data['italic_marker_count']/data['total']*100:.1f}%)")
-    print(f"\nТеги:")
+    print("\nТеги:")
     for tag, count in data["tag_counts"].most_common():
         print(f"  <{tag}>: {count:,}")

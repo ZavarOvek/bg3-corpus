@@ -37,17 +37,17 @@ CORPUS_PATH   = Path("data/corpus.jsonl")
 
 def load_jsonl(path: Path) -> list[dict]:
     with path.open("r", encoding="utf-8") as f:
-        return [json.loads(l) for l in f if l.strip()]
+        return [json.loads(line) for line in f if line.strip()]
 
 
 def load_gemini_index(path: Path) -> dict[str, str | None]:
     """Повертає {id: uk_gemini} для всіх записів gemini_results."""
     index = {}
-    for l in path.open("r", encoding="utf-8"):
-        l = l.strip()
-        if not l:
+    for line in path.open("r", encoding="utf-8"):
+        line = line.strip()
+        if not line:
             continue
-        obj = json.loads(l)
+        obj = json.loads(line)
         index[obj["id"]] = obj.get("uk_gemini")
     return index
 

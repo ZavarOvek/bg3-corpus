@@ -1,5 +1,10 @@
 **English** | [Українська](README.uk.md)
 
+[![CI](https://github.com/ZavarOvek/bg3-corpus/actions/workflows/ci.yml/badge.svg)](https://github.com/ZavarOvek/bg3-corpus/actions/workflows/ci.yml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+
 # bg3-corpus — EN-UK Parallel Corpus from Baldur's Gate 3 Texts
 
 A pipeline for building an English-Ukrainian parallel corpus from the

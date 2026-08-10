@@ -33,8 +33,8 @@ from pathlib import Path
 
 import sacrebleu
 from bert_score import score as bert_score_fn
-from nltk.translate.meteor_score import meteor_score as nltk_meteor
 from nltk.tokenize import word_tokenize
+from nltk.translate.meteor_score import meteor_score as nltk_meteor
 
 logging.basicConfig(
     level=logging.INFO,
@@ -67,7 +67,7 @@ def compute_sacrebleu_metrics(hyps: list[str], refs: list[str]) -> dict:
 
     # METEOR через NLTK (sacrebleu 2.x не має corpus_meteor)
     meteor_scores = []
-    for h, r in zip(hyps, refs):
+    for h, r in zip(hyps, refs, strict=True):
         h_tok = word_tokenize(h.lower()) if h.strip() else [""]
         r_tok = word_tokenize(r.lower()) if r.strip() else [""]
         meteor_scores.append(nltk_meteor([r_tok], h_tok))

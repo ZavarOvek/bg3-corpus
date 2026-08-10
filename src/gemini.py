@@ -156,7 +156,7 @@ def translate_one(
     except RetryableError as exc:
         logger.error("FAIL після 6 спроб id=%s: %s", rec["id"], exc)
         return None
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 — last resort: log and skip the record
         logger.error("Невідома помилка id=%s: %s", rec["id"], exc)
         return None
 

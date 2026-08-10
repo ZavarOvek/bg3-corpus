@@ -82,10 +82,10 @@ if __name__ == "__main__":
     save_jsonl(aligned, INTERMEDIATE / "aligned.jsonl")
     save_jsonl(en_only, INTERMEDIATE / "en_only.jsonl")
 
-    print(f"\n=== РЕЗУЛЬТАТ ===")
+    print("\n=== РЕЗУЛЬТАТ ===")
     print(f"Вирівняних пар:  {len(aligned):,}")
     print(f"EN-only:         {len(en_only):,}")
-    print(f"\n--- 10 прикладів aligned ---\n")
+    print("\n--- 10 прикладів aligned ---\n")
     import random
     for rec in random.sample(aligned, 10):
         print(f"id={rec['id']} ver={rec['version']}")

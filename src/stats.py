@@ -15,7 +15,6 @@ stats.py — описова статистика корпусу для Розд�
 """
 
 import json
-import re
 import statistics
 from collections import Counter
 from pathlib import Path
@@ -103,13 +102,13 @@ def run(corpus_path: Path = CORPUS_PATH, out_path: Path = STATS_PATH) -> None:
     a = lines.append
 
     a("# Статистика корпусу BG3-EN-UK\n")
-    a(f"*Згенеровано автоматично з `data/corpus.jsonl`*\n")
+    a("*Згенеровано автоматично з `data/corpus.jsonl`*\n")
     a("")
 
     # 1. Загальне
     a("## 1. Загальна кількість пар\n")
-    a(f"| Метрика | Значення |")
-    a(f"|---------|---------|")
+    a("| Метрика | Значення |")
+    a("|---------|---------|")
     a(f"| Всього пар у corpus.jsonl | **{total:,}** |")
     a(f"| Унікальних пар (з урахуванням дублікатів) | {total:,} |")
     a(f"| Оригінальних пар до дедуплікації | {total_original_pairs:,} |")
@@ -121,8 +120,8 @@ def run(corpus_path: Path = CORPUS_PATH, out_path: Path = STATS_PATH) -> None:
 
     # 2. Розподіл за класами
     a("## 2. Розподіл за типами тексту\n")
-    a(f"| Тип | Записів | % від корпусу | У вибірці |")
-    a(f"|-----|---------|--------------|-----------|")
+    a("| Тип | Записів | % від корпусу | У вибірці |")
+    a("|-----|---------|--------------|-----------|")
     sample_by_type = Counter(r["metadata"]["type"] for r in sample)
     for t in type_order:
         cnt = type_counts[t]
@@ -133,8 +132,8 @@ def run(corpus_path: Path = CORPUS_PATH, out_path: Path = STATS_PATH) -> None:
 
     # 3. Length class
     a("## 3. Розподіл за довжиною (length_class)\n")
-    a(f"| Клас | Діапазон EN (символів) | Записів | % |")
-    a(f"|------|----------------------|---------|---|")
+    a("| Клас | Діапазон EN (символів) | Записів | % |")
+    a("|------|----------------------|---------|---|")
     lc_defs = [
         ("short",   "< 100"),
         ("medium",  "100–499"),
@@ -148,20 +147,20 @@ def run(corpus_path: Path = CORPUS_PATH, out_path: Path = STATS_PATH) -> None:
 
     # 4. Токени
     a("## 4. Статистика токенів (whitespace tokenization)\n")
-    a(f"| Колонка | Середнє | Медіана | P95 | Мін | Макс |")
-    a(f"|---------|---------|---------|-----|-----|------|")
+    a("| Колонка | Середнє | Медіана | P95 | Мін | Макс |")
+    a("|---------|---------|---------|-----|-----|------|")
     a(f"| EN | {en_stats['mean']} | {en_stats['median']} | {en_stats['p95']} | {en_stats['min']} | {en_stats['max']} |")
     a(f"| uk_human | {ukh_stats['mean']} | {ukh_stats['median']} | {ukh_stats['p95']} | {ukh_stats['min']} | {ukh_stats['max']} |")
     a(f"| uk_gemini *(вибірка, n={n_with_gemini:,})* | {ukg_stats['mean']} | {ukg_stats['median']} | {ukg_stats['p95']} | {ukg_stats['min']} | {ukg_stats['max']} |")
     a("")
-    a(f"> Токенізація: розбиття по пробілах (whitespace split). "
-      f"Для точних BPE-підрахунків використовуйте `validate.py`.")
+    a("> Токенізація: розбиття по пробілах (whitespace split). "
+      "Для точних BPE-підрахунків використовуйте `validate.py`.")
     a("")
 
     # 5. Теги
     a("## 5. Наявність тегів і форматування\n")
-    a(f"| Маркер | Записів | % корпусу |")
-    a(f"|--------|---------|-----------|")
+    a("| Маркер | Записів | % корпусу |")
+    a("|--------|---------|-----------|")
     a(f"| `<LSTag>` (інтерактивна підказка) | {has_lstag:,} | {has_lstag/total*100:.1f}% |")
     a(f"| `<i>` (курсив / внутрішній голос) | {has_italic:,} | {has_italic/total*100:.1f}% |")
     a(f"| `<b>` (жирний) | {has_bold:,} | {has_bold/total*100:.1f}% |")
@@ -171,14 +170,14 @@ def run(corpus_path: Path = CORPUS_PATH, out_path: Path = STATS_PATH) -> None:
 
     # 6. Tag asymmetry
     a("## 6. Tag asymmetry (різна кількість тегів EN vs UK)\n")
-    a(f"| Статус | Записів | % |")
-    a(f"|--------|---------|---|")
+    a("| Статус | Записів | % |")
+    a("|--------|---------|---|")
     a(f"| tag_asymmetry = false | {asym_false:,} | {asym_false/total*100:.1f}% |")
     a(f"| tag_asymmetry = true  | {asym_true:,} | {asym_true/total*100:.1f}% |")
     a("")
-    a(f"### По класах\n")
-    a(f"| Тип | Асиметрія | Всього | % |")
-    a(f"|-----|-----------|--------|---|")
+    a("### По класах\n")
+    a("| Тип | Асиметрія | Всього | % |")
+    a("|-----|-----------|--------|---|")
     for t in type_order:
         a_cnt, t_cnt = asym_by_type.get(t, [0, 0])
         pct = a_cnt / t_cnt * 100 if t_cnt else 0
@@ -187,17 +186,17 @@ def run(corpus_path: Path = CORPUS_PATH, out_path: Path = STATS_PATH) -> None:
 
     # 7. Вибірка
     a("## 7. Стратифікована вибірка для Gemini\n")
-    a(f"| Метрика | Значення |")
-    a(f"|---------|---------|")
+    a("| Метрика | Значення |")
+    a("|---------|---------|")
     a(f"| Розмір вибірки | {n_sample:,} |")
-    a(f"| Seed | 42 |")
+    a("| Seed | 42 |")
     a(f"| Перекладено Gemini | {n_with_gemini:,} (100%) |")
-    a(f"| Модель | gemini-3.1-flash-lite |")
-    a(f"| Temperature | 0.2 |")
+    a("| Модель | gemini-3.1-flash-lite |")
+    a("| Temperature | 0.2 |")
     a("")
-    a(f"### Розподіл вибірки за класами\n")
-    a(f"| Тип | У вибірці | % вибірки | % від класу |")
-    a(f"|-----|-----------|-----------|------------|")
+    a("### Розподіл вибірки за класами\n")
+    a("| Тип | У вибірці | % вибірки | % від класу |")
+    a("|-----|-----------|-----------|------------|")
     for t in type_order:
         sc   = sample_by_type.get(t, 0)
         tc   = type_counts[t]

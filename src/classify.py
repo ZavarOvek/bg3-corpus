@@ -58,7 +58,9 @@ def _is_book_bracket(stripped: str) -> bool:
         return False
     if not any(c.islower() for c in content):
         return False
-    if content.strip().isdigit():
+    # Kept as a guard clause for symmetry with the checks above; this function
+    # produced the published type distribution and is deliberately left as is.
+    if content.strip().isdigit():  # noqa: SIM103
         return False
     return True
 
