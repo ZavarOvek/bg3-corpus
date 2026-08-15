@@ -53,6 +53,13 @@ University of Kyiv, 2026.
 | `telepathic` | 98 | 39.72 | 73.76 | 67.11 | 49.45 | 93.46 |
 | `ui_keybind` | 92 | 49.81 | 66.36 | 48.96 | 64.53 | 94.11 |
 
+![Scatter plot of BLEU against BERTScore F1 for the seven text types. BLEU spreads from 19.5 to 49.8, while BERTScore F1 stays inside a narrow 90.7 to 94.1 band, so the surface metric varies far more across text types than the semantic one.](docs/metrics_bleu_vs_bertscore.png)
+
+*BLEU ranges over a factor of 2.5 across text types, while BERTScore F1 moves
+only 3.4 points: a low BLEU here signals different wording, not lost meaning.
+Exact figures are in the table above. Regenerate the plot with
+`python scripts/plot_metrics.py`.*
+
 ---
 
 ## Pipeline architecture
