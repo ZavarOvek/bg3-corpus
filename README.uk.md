@@ -101,6 +101,9 @@ python -m nltk.downloader punkt wordnet averaged_perceptron_tagger
 
 # Ключ Gemini API
 echo "GEMINI_API_KEY=your_key_here" > .env
+
+# Тільки для розробки: ruff, плюс matplotlib для scripts/plot_metrics.py
+pip install -r requirements-dev.txt
 ```
 
 Потрібні XML-файли локалізації з легально придбаної копії BG3:
@@ -156,6 +159,7 @@ bg3-corpus/
 ├── examples/                  # ілюстративні вибірки (10-20 записів/тип)
 ├── TECHNICAL.md               # повна технічна документація
 ├── requirements.txt
+├── requirements-dev.txt       # ruff + matplotlib; рантайм лежить окремо
 ├── LICENSE                    # MIT для коду; дані — окремо
 └── README.md
 ```

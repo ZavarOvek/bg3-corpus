@@ -22,7 +22,7 @@
 
 Потребує matplotlib (не входить у requirements.txt: це інструмент для
 документації, а не частина пайплайну):
-    pip install matplotlib
+    pip install -r requirements-dev.txt
 """
 
 from __future__ import annotations
