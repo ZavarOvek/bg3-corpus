@@ -101,7 +101,8 @@ def save_jsonl(records: list[dict], path: Path) -> None:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
 
 
-def run(in_path: Path, out_path: Path) -> list[dict]:
+def run(in_path: Path, out_path: Path) -> tuple[list[dict], int, int, int]:
+    """Повертає (фінальні записи, записів на вході, видалено порожніх, видалено дублікатів)."""
     records = load_jsonl(in_path)
     total_in = len(records)
 

@@ -5,7 +5,7 @@ validate.py — обчислення MT-метрик для корпусу BG3-E
 
 Метрики:
   - BLEU   (sacrebleu, tokenize='13a')
-  - METEOR (sacrebleu)
+  - METEOR (NLTK; див. застереження в TECHNICAL.md §7.6)
   - TER    (sacrebleu)
   - CHRF   (sacrebleu, word_order=2 = ChrF++)
   - BERTScore (bert-score, model=xlm-roberta-base)
@@ -65,7 +65,7 @@ def compute_sacrebleu_metrics(hyps: list[str], refs: list[str]) -> dict:
     ter = sacrebleu.corpus_ter(hyps, [refs])
     chrf = sacrebleu.corpus_chrf(hyps, [refs], word_order=2)
 
-    # METEOR через NLTK (sacrebleu 2.x не має corpus_meteor)
+    # METEOR через NLTK: sacrebleu METEOR не реалізує
     meteor_scores = []
     for h, r in zip(hyps, refs, strict=True):
         h_tok = word_tokenize(h.lower()) if h.strip() else [""]

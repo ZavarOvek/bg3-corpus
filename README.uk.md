@@ -54,6 +54,10 @@
 пункти: низька BLEU тут означає інший добір слів, а не втрачений зміст. Точні
 числа — у таблиці вище. Перебудувати графік: `python scripts/plot_metrics.py`.*
 
+METEOR рахується реалізацією NLTK, у якої стемер і пошук синонімів лише англійські, тож на українському тексті
+він враховує тільки точні збіги словоформ. Його можна порівнювати між типами тексту вище, але не з METEOR з інших
+робіт; див. TECHNICAL.md §7.6.
+
 ---
 
 ## Архітектура пайплайну
@@ -102,8 +106,9 @@ python -m nltk.downloader punkt wordnet averaged_perceptron_tagger
 # Ключ Gemini API
 echo "GEMINI_API_KEY=your_key_here" > .env
 
-# Тільки для розробки: ruff, плюс matplotlib для scripts/plot_metrics.py
+# Тільки для розробки: ruff, pytest, плюс matplotlib для scripts/plot_metrics.py
 pip install -r requirements-dev.txt
+pytest -q   # потрібні tenacity і python-dotenv з requirements.txt
 ```
 
 Потрібні XML-файли локалізації з легально придбаної копії BG3:
@@ -157,9 +162,10 @@ bg3-corpus/
 ├── prompts/
 │   └── gemini_v1.txt          # промпт (v3, фінальний)
 ├── examples/                  # ілюстративні вибірки (10-20 записів/тип)
+├── tests/                     # pytest: обробка помилок Gemini, чисті функції етапів
 ├── TECHNICAL.md               # повна технічна документація
 ├── requirements.txt
-├── requirements-dev.txt       # ruff + matplotlib; рантайм лежить окремо
+├── requirements-dev.txt       # ruff, pytest, matplotlib; рантайм лежить окремо
 ├── LICENSE                    # MIT для коду; дані — окремо
 └── README.md
 ```

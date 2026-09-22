@@ -11,7 +11,10 @@ SDK:     google-genai (новий, google.generativeai deprecated з 2026)
   - Інкрементальне збереження після кожного запиту
   - Resume: пропускає id, що вже є у gemini_results.jsonl
   - 429 / 5xx → exponential backoff (tenacity): 1s → 2s → 4s → 8s → 16s → 32s
-  - 400 / 403 → зупинка з ясним логом, без повторів
+  - 400 / 401 / 403 / 404 → зупинка всього прогону з ясним логом, без повторів:
+    невалідний ключ чи запит не виправиться на наступному записі
+  - порожня відповідь (safety-блок, немає candidates) → запис FAIL без повторів,
+    прогін триває
   - Ключ API тільки з .env → RuntimeError якщо відсутній
 
 НЕ ЗАПУСКАТИ без явного підтвердження промпта.
@@ -67,11 +70,29 @@ class RetryableError(Exception):
 
 
 class FatalError(Exception):
-    """400 / 403 — зупиняємось, не повторюємо."""
+    """400 / 401 / 403 / 404 — зупиняємо весь прогін, не повторюємо."""
+
+
+class EmptyResponseError(Exception):
+    """Модель не повернула тексту (safety-блок тощо). Повтор нічого не змінить."""
+
+
+_FATAL_CODES = {400, 401, 403, 404}
 
 
 def _classify_api_error(exc: Exception) -> Exception:
-    """Перетворює виняток Google API у RetryableError або FatalError."""
+    """Перетворює виняток Google API у RetryableError або FatalError.
+
+    Спершу дивиться на HTTP-код (`google.genai.errors.APIError.code`). Пошук
+    підрядків у тексті лишився запасним шляхом для винятків без коду
+    (мережа, таймаути): підрядок «500» трапляється й у звичайних числах.
+    """
+    code = getattr(exc, "code", None)
+    if isinstance(code, int):
+        if code == 429 or code >= 500:
+            return RetryableError(str(exc))
+        if code in _FATAL_CODES:
+            return FatalError(str(exc))
     msg = str(exc).lower()
     if "429" in msg or "resource_exhausted" in msg or "quota" in msg:
         return RetryableError(str(exc))
@@ -119,8 +140,9 @@ def init_client() -> genai.Client:
 def _call_api(client: genai.Client, user_message: str) -> str:
     """
     Надсилає один запит до Gemini. Повертає текст відповіді.
-    RetryableError → tenacity повторює (backoff 1→2→4→8→16→32с).
-    FatalError     → піднімається одразу, без повторів.
+    RetryableError     → tenacity повторює (backoff 1→2→4→8→16→32с).
+    FatalError         → піднімається одразу, без повторів.
+    EmptyResponseError → піднімається одразу, без повторів.
     """
     try:
         response = client.models.generate_content(
@@ -133,12 +155,13 @@ def _call_api(client: genai.Client, user_message: str) -> str:
                 max_output_tokens=MAX_OUTPUT_TOKENS,
             ),
         )
-        return response.text.strip()
-    except FatalError:
-        raise
     except Exception as exc:
         classified = _classify_api_error(exc)
         raise classified from exc
+    text = response.text
+    if not text or not text.strip():
+        raise EmptyResponseError("модель не повернула тексту (safety-блок або порожні candidates)")
+    return text.strip()
 
 
 def translate_one(
@@ -147,15 +170,18 @@ def translate_one(
     rec: dict,
 ) -> str | None:
     """
-    Перекладає один запис. Повертає рядок або None при провалі.
+    Перекладає один запис. Повертає рядок або None при провалі запису.
+    FatalError не ловиться: він означає, що зупинитися має весь прогін.
     Помилки логуються БЕЗ значення API ключа.
     """
     rec_type = rec["metadata"]["type"]
     user_message = build_user_message(template, rec["en"], rec_type)
     try:
         return _call_api(client, user_message)
-    except FatalError as exc:
-        logger.error("FATAL (зупинка) id=%s: %s", rec["id"], exc)
+    except FatalError:
+        raise
+    except EmptyResponseError as exc:
+        logger.error("Порожня відповідь id=%s: %s", rec["id"], exc)
         return None
     except RetryableError as exc:
         logger.error("FAIL після 6 спроб id=%s: %s", rec["id"], exc)
@@ -246,7 +272,15 @@ def run(
 
     with results_path.open("a", encoding="utf-8") as f:
         for i, rec in enumerate(pending, 1):
-            translation = translate_one(client, template, rec)
+            try:
+                translation = translate_one(client, template, rec)
+            except FatalError as exc:
+                logger.error(
+                    "FATAL id=%s, прогін зупинено (resume продовжить з цього запису): %s",
+                    rec["id"],
+                    exc,
+                )
+                break
 
             result = {
                 "id": rec["id"],

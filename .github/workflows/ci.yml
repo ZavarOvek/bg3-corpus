@@ -42,3 +42,20 @@ jobs:
             echo "importing $m"
             python -c "import $m"
           done
+
+  test:
+    name: pytest (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      # gemini.py needs tenacity and python-dotenv; the google-genai SDK itself
+      # is stubbed in tests/conftest.py. The heavy MT-metrics stack stays out.
+      - run: pip install "lxml>=5.0.0" "tenacity>=8.2.0" "python-dotenv>=1.0.0" pytest
+      - run: pytest -q

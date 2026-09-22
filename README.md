@@ -60,6 +60,10 @@ only 3.4 points: a low BLEU here signals different wording, not lost meaning.
 Exact figures are in the table above. Regenerate the plot with
 `python scripts/plot_metrics.py`.*
 
+METEOR is NLTK's implementation, whose stemmer and synonym lookup are English-only, so on Ukrainian it counts
+exact word-form matches. It is comparable across the text types above, not with METEOR reported elsewhere;
+see TECHNICAL.md §7.6.
+
 ---
 
 ## Pipeline architecture
@@ -108,8 +112,9 @@ python -m nltk.downloader punkt wordnet averaged_perceptron_tagger
 # Gemini API key
 echo "GEMINI_API_KEY=your_key_here" > .env
 
-# Development tools only: ruff, plus matplotlib for scripts/plot_metrics.py
+# Development tools only: ruff, pytest, plus matplotlib for scripts/plot_metrics.py
 pip install -r requirements-dev.txt
+pytest -q   # needs tenacity and python-dotenv from requirements.txt
 ```
 
 Requires the localization XML files from a legally purchased copy of BG3:
@@ -166,9 +171,10 @@ bg3-corpus/
 ├── prompts/
 │   └── gemini_v1.txt          # prompt (v3, final)
 ├── examples/                  # illustrative samples (10-20 records/type)
+├── tests/                     # pytest: Gemini error handling, pure stage functions
 ├── TECHNICAL.md               # full technical documentation
 ├── requirements.txt
-├── requirements-dev.txt       # ruff + matplotlib; runtime deps stay separate
+├── requirements-dev.txt       # ruff, pytest, matplotlib; runtime deps stay separate
 ├── LICENSE                    # MIT for the code; data licensed separately
 └── README.md
 ```

@@ -16,3 +16,7 @@ matplotlib==3.11.1
 
 # Лінтер і форматер. Та сама версія, що й у CI.
 ruff==0.16.2
+
+# Тести: pytest -q. Для tests/test_gemini.py потрібні ще tenacity і
+# python-dotenv з requirements.txt (сам google-genai у тестах застаблено).
+pytest

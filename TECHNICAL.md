@@ -47,7 +47,6 @@ bg3-corpus/
 │   └── gemini_run.log               # Журнал Gemini-сесій
 │
 ├── .env                             # GEMINI_API_KEY (не публікується)
-├── pyproject.toml
 ├── requirements.txt
 ├── TECHNICAL.md                     # Цей файл
 └── README.md
@@ -505,12 +504,12 @@ build_user_message(template: str, en_text: str, rec_type: str) -> str
 ```python
 _call_api(client, user_message: str) -> str
 ```
-Декорований `@retry(tenacity)`. Надсилає один запит до `gemini-3.1-flash-lite`. При виключенні класифікує помилку на `RetryableError` (429, 5xx) або `FatalError` (400, 403). `RetryableError` → exponential backoff 1→2→4→8→16→32 с, 6 спроб. `FatalError` → підіймається без повторів.
+Декорований `@retry(tenacity)`. Надсилає один запит до `gemini-3.1-flash-lite`. При виключенні класифікує помилку за HTTP-кодом винятку SDK (запасний шлях — текст повідомлення) на `RetryableError` (429, 5xx) або `FatalError` (400, 401, 403, 404). `RetryableError` → exponential backoff 1→2→4→8→16→32 с, 6 спроб. `FatalError` → підіймається без повторів. Порожня відповідь (safety-блок) → `EmptyResponseError`, теж без повторів.
 
 ```python
 translate_one(client, template: str, rec: dict) -> str | None
 ```
-Обгортка навколо `_call_api`. Повертає рядок перекладу або `None` при будь-якому збої. Логує без значення API-ключа.
+Обгортка навколо `_call_api`. Повертає рядок перекладу або `None`, якщо не вдався сам запис. `FatalError` пропускає нагору: `run()` на ньому зупиняє весь прогін (resume продовжить з цього запису). Логує без значення API-ключа.
 
 ```python
 run(sample_path, results_path, limit=None) -> None
@@ -622,7 +621,7 @@ strip_tags(text: str) -> str
 ```python
 compute_sacrebleu_metrics(hyps: list[str], refs: list[str]) -> dict
 ```
-Обчислює BLEU (`sacrebleu.corpus_bleu`, tokenize='13a'), TER (`sacrebleu.corpus_ter`), ChrF++ (`sacrebleu.corpus_chrf`, word_order=2). METEOR — через NLTK `meteor_score` з `word_tokenize(text.lower())` (оскільки `sacrebleu.corpus_meteor` видалено у sacrebleu 2.x). Повертає `{"BLEU", "METEOR", "TER", "CHRF", "n"}`.
+Обчислює BLEU (`sacrebleu.corpus_bleu`, tokenize='13a'), TER (`sacrebleu.corpus_ter`), ChrF++ (`sacrebleu.corpus_chrf`, word_order=2). METEOR — через NLTK `meteor_score` з `word_tokenize(text.lower())`: sacrebleu METEOR не реалізує. Повертає `{"BLEU", "METEOR", "TER", "CHRF", "n"}`.
 
 ```python
 compute_bertscore(hyps, refs, model) -> dict
@@ -680,7 +679,7 @@ run(corpus_path, results_md, results_jsonl) -> None
 
 **Примітка щодо `google-genai`:** Стара бібліотека `google-generativeai` є deprecated з 2026; новий SDK — `google-genai` (import `from google import genai`). Версії несумісні.
 
-**Примітка щодо `sacrebleu` і METEOR:** У sacrebleu 2.x функція `corpus_meteor` видалена. METEOR обчислюється через NLTK `nltk.translate.meteor_score.meteor_score` з `word_tokenize(text.lower())` для токенізації.
+**Примітка щодо `sacrebleu` і METEOR:** sacrebleu METEOR не реалізує (у жодній версії немає `corpus_meteor`). METEOR обчислюється через NLTK `nltk.translate.meteor_score.meteor_score` з `word_tokenize(text.lower())` для токенізації; про те, що це означає для української, див. §7.6.
 
 ---
 
@@ -693,10 +692,13 @@ run(corpus_path, results_md, results_jsonl) -> None
 `xlm-roberta-base` підтримує українську, але не спеціалізована модель для UA. Для вищої точності можна використати `lang-uk/roberta-base-ukrainian`, але вона потребує більше RAM і часу.
 
 ### 7.3 BLEU і короткі рядки
-82.7% корпусу — `short` (<100 символів). BLEU нестабільний на коротких рядках через brevity penalty і малу кількість n-грамів. METEOR і BERTScore надійніші для цих класів.
+82.7% корпусу — `short` (<100 символів). BLEU нестабільний на коротких рядках через brevity penalty і малу кількість n-грамів. BERTScore для цих класів надійніший; METEOR теж менш чутливий до довжини, але див. §7.6.
 
 ### 7.4 Daily limit і resume
 500 RPD обмеження — rolling 24h window, не calendar day. `load_done_ids()` автоматично видаляє FAIL-рядки при resume, що дозволяє відновлення без ручного редагування файлів після кожної сесії.
 
 ### 7.5 Дедуплікація по парі (en, uk)
 Дедуплікація по `(en, uk_human)` замість тільки по `en` — зберігає ситуації де один EN-рядок має різні UK-переклади у різних NPC. 4 такі пари виявлені в корпусі; вони лінгвістично цінніші за типові дублікати.
+
+### 7.6 METEOR на українському тексті
+NLTK-реалізація METEOR шукає, крім точних збігів, збіги за основою (стемер Портера) і синоніми (WordNet). Обидва ресурси англійські: для українських слів стемер нічого не робить, а WordNet синонімів не знаходить. Тож METEOR тут фактично зводиться до точних збігів словоформ зі штрафом за фрагментацію. Українська флективна, тому різні відмінкові форми того самого слова рахуються як незбіги. Порівнювати METEOR між типами тексту в цьому корпусі коректно; зіставляти 49.57 з METEOR, опублікованим для англійської чи для реалізацій з українськими ресурсами, некоректно. Опубліковані цифри лишаються як є: вони отримані саме цим методом.
