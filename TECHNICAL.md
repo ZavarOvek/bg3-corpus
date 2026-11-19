@@ -61,7 +61,7 @@ bg3-corpus/
 ```bash
 # Передумова: Python 3.11+, залежності встановлено
 pip install -r requirements.txt
-python -m nltk.downloader punkt wordnet
+python -m nltk.downloader punkt punkt_tab wordnet
 
 # 0. (Одноразово) Розвідка структури даних
 python src/scout_tags.py

@@ -101,7 +101,7 @@ Localization/
 ```bash
 # Python 3.11+
 pip install -r requirements.txt
-python -m nltk.downloader punkt wordnet averaged_perceptron_tagger
+python -m nltk.downloader punkt punkt_tab wordnet averaged_perceptron_tagger
 
 # Ключ Gemini API
 echo "GEMINI_API_KEY=your_key_here" > .env
