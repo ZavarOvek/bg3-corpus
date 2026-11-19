@@ -6,6 +6,10 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 ## [Unreleased]
 
 ### Fixed
+- `README.md`, `README.uk.md`, `TECHNICAL.md`: the NLTK download step now also
+  fetches `punkt_tab`; NLTK >= 3.9 (what `nltk>=3.8.0` installs) no longer
+  finds `punkt` for `word_tokenize`, so `src/validate.py` failed with a
+  `LookupError` on a fresh setup.
 - `src/gemini.py`: a fatal API error (400/401/403/404, e.g. an invalid key)
   now stops the whole run, as the module docstring always promised. It used
   to fail the record and move on, so a bad key meant one failed request per
